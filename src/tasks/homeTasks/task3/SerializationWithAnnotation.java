@@ -8,6 +8,7 @@ package tasks.homeTasks.task3;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.*;
+import java.lang.reflect.Field;
 
 public class SerializationWithAnnotation {
     public static void main(String[] args) throws Exception {
@@ -25,15 +26,17 @@ public class SerializationWithAnnotation {
     private static void readFromFile(String fileName) throws Exception {
         try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(fileName)))) {
             Person person = (Person) ois.readObject();
-//            for(Field field : person.getClass().getDeclaredFields()) {
-//                field.setAccessible(true);
-//                System.out.println(field.getName() + ": " + field.get(person));
-//            }
-
-            for (PropertyDescriptor pd : Introspector.getBeanInfo(Person.class).getPropertyDescriptors()) {
-                if (pd.getReadMethod() != null && !"class".equals(pd.getName()))
-                    System.out.println(pd.getName() + ": " + pd.getReadMethod().invoke(person));
+            for(Field field : person.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                if(field.isAnnotationPresent(Save.class)) {
+                    System.out.println(field.getName() + ": " + field.get(person));
+                }
             }
+
+//            for (PropertyDescriptor pd : Introspector.getBeanInfo(Person.class).getPropertyDescriptors()) {
+//                if (pd.getReadMethod() != null && !"class".equals(pd.getName()))
+//                    System.out.println(pd.getName() + ": " + pd.getReadMethod().invoke(person));
+//            }
         }
     }
 }
