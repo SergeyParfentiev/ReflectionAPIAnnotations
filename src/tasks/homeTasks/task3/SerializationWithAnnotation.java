@@ -5,38 +5,22 @@ package tasks.homeTasks.task3;
 отмечены аннотацией @Save.
 */
 
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.io.*;
-import java.lang.reflect.Field;
-
 public class SerializationWithAnnotation {
     public static void main(String[] args) throws Exception {
-        String fileName = "Person.dat";
-        writeToFile(fileName);
-        readFromFile(fileName);
-    }
+        Brother brother = new Brother("Vania", "Vovk", true, 25, "male", true);
+        Sister sister = new Sister();
+        Serializer serializer = new Serializer<>();
 
-    private static void writeToFile(String fileName) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)))) {
-            oos.writeObject(new Person("Ann", "Vovk", 30, "female", true));
-        }
-    }
+        serializer.toFile(brother);
 
-    private static void readFromFile(String fileName) throws Exception {
-        try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(fileName)))) {
-            Person person = (Person) ois.readObject();
-            for(Field field : person.getClass().getDeclaredFields()) {
-                field.setAccessible(true);
-                if(field.isAnnotationPresent(Save.class)) {
-                    System.out.println(field.getName() + ": " + field.get(person));
-                }
-            }
+        String fileName = brother.getClass().getSimpleName();
 
-//            for (PropertyDescriptor pd : Introspector.getBeanInfo(Person.class).getPropertyDescriptors()) {
-//                if (pd.getReadMethod() != null && !"class".equals(pd.getName()))
-//                    System.out.println(pd.getName() + ": " + pd.getReadMethod().invoke(person));
-//            }
-        }
+        serializer.fromFile(fileName, sister);
+
+        System.out.println(sister.name);
+        System.out.println(sister.surname);
+        System.out.println(sister.age);
+        System.out.println(sister.gender);
+        System.out.println(sister.married);
     }
 }
